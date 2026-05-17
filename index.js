@@ -105,13 +105,12 @@ client.once(Events.ClientReady, async (c) => {
       return;
     }
 
-    // 🔥 FIX: Securely fetch from Discord's API instead of relying on the quick cache
     const guild = await c.guilds.fetch(guildId).catch(() => null);
 
     if (guild) {
       await guild.commands.set([
         {
-          name: "create",
+          name: "build",
           description: "Shows the resonator build selector",
         },
       ]);
@@ -172,16 +171,18 @@ async function getPage(pageIndex) {
 // --- MAIN LOGIC ---
 client.on(Events.InteractionCreate, async (interaction) => {
   // 1. Handle Slash Command
-  if (
-    interaction.isChatInputCommand() &&
-    interaction.commandName === "create"
-  ) {
+  if (interaction.isChatInputCommand() && interaction.commandName === "build") {
     const pageData = await getPage(0);
     await interaction.reply(pageData);
   }
 
   // 2. Handle Buttons (Next/Prev)
   if (interaction.isButton()) {
+    if (interaction.customId === "back_to_menu") {
+      const pageData = await getPage(0);
+      return await interaction.update(pageData);
+    }
+
     const [action, currentIndex] = interaction.customId.split("_");
     let newIndex = parseInt(currentIndex);
 
@@ -211,9 +212,16 @@ client.on(Events.InteractionCreate, async (interaction) => {
       .setColor(data.color)
       .setImage(data.image);
 
+    const backButton = new ButtonBuilder()
+      .setCustomId("back_to_menu")
+      .setLabel("Return")
+      .setStyle(ButtonStyle.Secondary);
+
+    const row = new ActionRowBuilder().addComponents(backButton);
+
     await interaction.update({
       embeds: [buildEmbed],
-      components: [],
+      components: [row],
       attachments: [],
     });
   }
