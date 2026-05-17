@@ -34,12 +34,12 @@ const characters = [
   // { label: "Lynae", value: "lynae" },
   // { label: "Mornye", value: "mornye" },
   // { label: "Buling", value: "buling" },
-  // { label: "Chisa", value: "chisa" },
+  { label: "Chisa", value: "chisa" },
   // { label: "Galbrena", value: "galbrena" },
   // { label: "Qiuyuan", value: "qiuyuan" },
   // { label: "Augusta", value: "augusta" },
   // { label: "Iuno", value: "iuno" },
-  // { label: "Phrolova", value: "phrolova" },
+  { label: "Phrolova", value: "phrolova" },
   // { label: "Cartethyia", value: "cartethyia" },
   // { label: "Lupa", value: "lupa" },
   // { label: "Ciaccona", value: "ciaccona" },
@@ -302,7 +302,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
       if (!data) {
         return interaction.reply({
-          content: "Loading...",
+          content: "Unavailable!",
           flags: ["Ephemeral"],
         });
       }
@@ -331,7 +331,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
       const data = materialData[charKey];
       if (!data)
         return interaction.reply({
-          content: "Loading...",
+          content: "Unavailable!",
           flags: ["Ephemeral"],
         });
 
