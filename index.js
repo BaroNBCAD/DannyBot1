@@ -15,6 +15,14 @@ const GITHUB_BASE =
   "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/main/";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+// HOSTINGER
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.get("/", (req, res) =>
+  res.send("DannyBot1 is running natively on Hostinger..."),
+);
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 const characters = [
   { label: "Denia", value: "denia" },
