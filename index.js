@@ -90,12 +90,25 @@ const resonatorData = {
     image:
       "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/card/denia.png",
   },
-  // Add others as you go...
+};
+
+const materialData = {
+  hiyuki: {
+    name: "Hiyuki",
+    color: "#afeeee",
+    image:
+      "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/material/hiyuki.png",
+  },
+  denia: {
+    name: "Denia",
+    color: "#fac73b",
+    image:
+      "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/material/denia.png",
+  },
 };
 
 client.once(Events.ClientReady, async (c) => {
   console.log(`✅ ${c.user.tag} is online!`);
-
   try {
     const guildId = process.env.GUILD_ID;
     if (!guildId) {
