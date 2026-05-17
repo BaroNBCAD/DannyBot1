@@ -233,19 +233,31 @@ client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === "build") {
       try {
+        await interaction.deferReply({ flags: ["Ephemeral"] });
         const pageData = await getBuildPage(0);
-        await interaction.reply(pageData);
+        await interaction.editReply(pageData);
       } catch (error) {
         console.error("Error running /build:", error);
+        await interaction
+          .editReply({
+            content: "An error occurred while loading this build card.",
+          })
+          .catch(() => null);
       }
     }
 
     if (interaction.commandName === "material") {
       try {
+        await interaction.deferReply({ flags: ["Ephemeral"] });
         const pageData = await getMaterialPage(0);
-        await interaction.reply(pageData);
+        await interaction.editReply(pageData);
       } catch (error) {
         console.error("Error running /material:", error);
+        await interaction
+          .editReply({
+            content: "An error occurred while loading these materials.",
+          })
+          .catch(() => null);
       }
     }
   }
