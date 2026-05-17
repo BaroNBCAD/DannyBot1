@@ -93,8 +93,39 @@ const resonatorData = {
   // Add others as you go...
 };
 
-client.once(Events.ClientReady, (c) => {
+client.once(Events.ClientReady, async (c) => {
   console.log(`✅ ${c.user.tag} is online!`);
+
+  try {
+    const guildId = process.env.GUILD_ID;
+    if (!guildId) {
+      console.log(
+        "⚠️ Warning: GUILD_ID is completely missing in your environment setup!",
+      );
+      return;
+    }
+
+    // 🔥 FIX: Securely fetch from Discord's API instead of relying on the quick cache
+    const guild = await c.guilds.fetch(guildId).catch(() => null);
+
+    if (guild) {
+      await guild.commands.set([
+        {
+          name: "create",
+          description: "Shows the resonator build selector",
+        },
+      ]);
+      console.log(
+        `⚡ Slash commands successfully auto-registered to server: ${guild.name}`,
+      );
+    } else {
+      console.log(
+        `⚠️ Warning: Could not find or access any server matching ID: ${guildId}`,
+      );
+    }
+  } catch (error) {
+    console.error("❌ Failed to auto-register slash commands:", error);
+  }
 });
 // --- HELPER FUNCTION ---
 async function getPage(pageIndex) {
@@ -134,7 +165,7 @@ async function getPage(pageIndex) {
     embeds: [embed],
     files: [attachment],
     components: [row1, row2],
-    ephemeral: true,
+    flags: ["Ephemeral"],
   };
 }
 
@@ -171,7 +202,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (!data) {
       return interaction.reply({
         content: "Build data for this character is coming soon!",
-        ephemeral: true,
+        flags: ["Ephemeral"],
       });
     }
 
