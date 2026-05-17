@@ -1,0 +1,183 @@
+const {
+  Client,
+  GatewayIntentBits,
+  EmbedBuilder,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  AttachmentBuilder,
+  Events,
+} = require("discord.js");
+const { generateDynamicGrid } = require("./gridGenerator.js");
+require("dotenv").config();
+const GITHUB_BASE =
+  "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/main/";
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+const characters = [
+  { label: "Denia", value: "denia" },
+  { label: "Hiyuki", value: "hiyuki" },
+  // { label: "Sigrika", value: "sigrika" },
+  // { label: "Aemeath", value: "aemeath" },
+  // { label: "Luuk-Herssen", value: "luuk_herssen" },
+  // { label: "Lynae", value: "lynae" },
+  // { label: "Mornye", value: "mornye" },
+  // { label: "Buling", value: "buling" },
+  // { label: "Chisa", value: "chisa" },
+  // { label: "Galbrena", value: "galbrena" },
+  // { label: "Qiuyuan", value: "qiuyuan" },
+  // { label: "Augusta", value: "augusta" },
+  // { label: "Iuno", value: "iuno" },
+  // { label: "Phrolova", value: "phrolova" },
+  // { label: "Cartethyia", value: "cartethyia" },
+  // { label: "Lupa", value: "lupa" },
+  // { label: "Ciaccona", value: "ciaccona" },
+  // { label: "Zani", value: "zani" },
+  // { label: "Cantarella", value: "cantarella" },
+  // { label: "Rover-Aero", value: "rover_aero" },
+  // { label: "Brant", value: "brant" },
+  // { label: "Phoebe", value: "phoebe" },
+  // { label: "Carlotta", value: "carlotta" },
+  // { label: "Roccia", value: "roccia" },
+  // { label: "Camellya", value: "camellya" },
+  // { label: "Lumi", value: "lumi" },
+  // { label: "Shorekeeper", value: "shorekeeper" },
+  // { label: "Youhu", value: "youhu" },
+  // { label: "Xiangli-Yao", value: "xiangli_yao" },
+  // { label: "Zhezhi", value: "zhezhi" },
+  // { label: "Changli", value: "changli" },
+  // { label: "Jinhsi", value: "jinhsi" },
+  // { label: "Aalto", value: "aalto" },
+  // { label: "Baizhi", value: "baizhi" },
+  // { label: "Calcharo", value: "calcharo" },
+  // { label: "Chixia", value: "chixia" },
+  // { label: "Danjin", value: "danjin" },
+  // { label: "Encore", value: "encore" },
+  // { label: "Jianxin", value: "jianxin" },
+  // { label: "Jiyan", value: "jiyan" },
+  // { label: "Lingyang", value: "lingyang" },
+  // { label: "Mortefi", value: "mortefi" },
+  // { label: "Rover-Havoc", value: "rover_havoc" },
+  // { label: "Rover-Spectro", value: "rover_spectro" },
+  // { label: "Sanhua", value: "sanhua" },
+  // { label: "Taoqi", value: "taoqi" },
+  // { label: "Verina", value: "verina" },
+  // { label: "Yangyang", value: "yangyang" },
+  // { label: "Yinlin", value: "yinlin" },
+  // { label: "Yuanwu", value: "yuanwu" },
+];
+
+const resonatorData = {
+  hiyuki: {
+    name: "Hiyuki",
+    color: "#afeeee",
+    image:
+      "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/card/hiyuki.png",
+  },
+  denia: {
+    name: "Denia",
+    color: "#fac73b",
+    image:
+      "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/card/denia.png",
+  },
+  // Add others as you go...
+};
+
+client.once(Events.ClientReady, (c) => {
+  console.log(`✅ ${c.user.tag} is online!`);
+});
+// --- HELPER FUNCTION ---
+async function getPage(pageIndex) {
+  const itemsPerPage = 9;
+  const totalPages = Math.ceil(characters.length / itemsPerPage);
+  const start = pageIndex * itemsPerPage;
+  const pageItems = characters.slice(start, start + itemsPerPage);
+
+  const attachment = await generateDynamicGrid(pageItems, pageIndex);
+
+  const embed = new EmbedBuilder()
+    .setTitle("Resonator Build Database")
+    .setDescription("Select a character below to see their optimal build.")
+    .setImage(`attachment://grid-p${pageIndex}.png`);
+
+  const selectMenu = new StringSelectMenuBuilder()
+    .setCustomId("select_resonator")
+    .setPlaceholder("Choose a Resonator")
+    .addOptions(pageItems);
+
+  const row1 = ActionRowBuilder.from({ components: [selectMenu] });
+
+  const row2 = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`prev_${pageIndex}`)
+      .setLabel("Previous")
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(pageIndex === 0),
+    new ButtonBuilder()
+      .setCustomId(`next_${pageIndex}`)
+      .setLabel("Next")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(pageIndex >= totalPages - 1),
+  );
+
+  return {
+    embeds: [embed],
+    files: [attachment],
+    components: [row1, row2],
+    ephemeral: true,
+  };
+}
+
+// --- MAIN LOGIC ---
+client.on(Events.InteractionCreate, async (interaction) => {
+  // 1. Handle Slash Command
+  if (
+    interaction.isChatInputCommand() &&
+    interaction.commandName === "create"
+  ) {
+    const pageData = await getPage(0);
+    await interaction.reply(pageData);
+  }
+
+  // 2. Handle Buttons (Next/Prev)
+  if (interaction.isButton()) {
+    const [action, currentIndex] = interaction.customId.split("_");
+    let newIndex = parseInt(currentIndex);
+
+    if (action === "next") newIndex++;
+    if (action === "prev") newIndex--;
+    const pageData = await getPage(newIndex);
+    await interaction.update(pageData);
+  }
+
+  // 3. Handle Select Menu
+  if (
+    interaction.isStringSelectMenu() &&
+    interaction.customId === "select_resonator"
+  ) {
+    const charKey = interaction.values[0];
+    const data = resonatorData[charKey];
+
+    if (!data) {
+      return interaction.reply({
+        content: "Build data for this character is coming soon!",
+        ephemeral: true,
+      });
+    }
+
+    const buildEmbed = new EmbedBuilder()
+      .setTitle(`${data.name} Build Guide`)
+      .setColor(data.color)
+      .setImage(data.image);
+
+    await interaction.update({
+      embeds: [buildEmbed],
+      components: [],
+      attachments: [],
+    });
+  }
+});
+
+client.login(process.env.DISCORD_TOKEN);
