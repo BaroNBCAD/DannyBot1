@@ -126,13 +126,17 @@ client.once(Events.ClientReady, async (c) => {
           name: "build",
           description: "Shows the resonator build selector",
         },
+        {
+          name: "material",
+          description: "Shows the resonator ascension materials selector",
+        },
       ]);
       console.log(
-        `⚡ Slash commands successfully auto-registered to server: ${guild.name}`,
+        `Slash commands successfully auto-registered to server: ${guild.name}`,
       );
     } else {
       console.log(
-        `⚠️ Warning: Could not find or access any server matching ID: ${guildId}`,
+        `Warning: Could not find or access any server matching ID: ${guildId}`,
       );
     }
   } catch (error) {
@@ -140,6 +144,7 @@ client.once(Events.ClientReady, async (c) => {
   }
 });
 // --- HELPER FUNCTION ---
+// --- /build
 async function getPage(pageIndex) {
   const itemsPerPage = 9;
   const totalPages = Math.ceil(characters.length / itemsPerPage);
@@ -180,6 +185,48 @@ async function getPage(pageIndex) {
     flags: ["Ephemeral"],
   };
 }
+// --- /material
+async function getMaterialPage(pageIndex) {
+  const itemsPerPage = 9;
+  const totalPages = Math.ceil(characters.length / itemsPerPage);
+  const start = pageIndex * itemsPerPage;
+  const pageItems = characters.slice(start, start + itemsPerPage);
+
+  const attachment = await generateDynamicGrid(pageItems, pageIndex);
+
+  const embed = new EmbedBuilder()
+    .setTitle("Resonator Material Database")
+    .setDescription(
+      "Select a character below to see their ascension materials.",
+    )
+    .setImage(`attachment://grid-p${pageIndex}.png`);
+
+  const selectMenu = new StringSelectMenuBuilder()
+    .setCustomId("select_material")
+    .setPlaceholder("Choose a Resonator")
+    .addOptions(pageItems);
+
+  const row1 = ActionRowBuilder.from({ components: [selectMenu] });
+  const row2 = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`prev_material_${pageIndex}`)
+      .setLabel("Previous")
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(pageIndex === 0),
+    new ButtonBuilder()
+      .setCustomId(`next_material_${pageIndex}`)
+      .setLabel("Next")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(pageIndex >= totalPages - 1),
+  );
+
+  return {
+    embeds: [embed],
+    files: [attachment],
+    components: [row1, row2],
+    flags: ["Ephemeral"],
+  };
+}
 
 // --- MAIN LOGIC ---
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -187,29 +234,22 @@ client.on(Events.InteractionCreate, async (interaction) => {
     `Interaction received: ${interaction.type} from ${interaction.user.tag}`,
   );
   // 1. Handle Slash Command
-  if (interaction.isChatInputCommand() && interaction.commandName === "build") {
-    console.log(
-      "/build command detected! Attempting to generate layout canvas...",
-    );
-    try {
-      const pageData = await getPage(0);
-      console.log(
-        "📦 pageData generated successfully. Sending package to Discord...",
-      );
+  if (interaction.isChatInputCommand()) {
+    if (interaction.commandName === "build") {
+      try {
+        const pageData = await getBuildPage(0);
+        await interaction.reply(pageData);
+      } catch (error) {
+        console.error("Error running /build:", error);
+      }
+    }
 
-      await interaction.reply(pageData);
-      console.log("✅ Response successfully dispatched to Discord!");
-    } catch (error) {
-      console.error("❌ CRITICAL ERROR inside /build handler:", error);
-
-      if (!interaction.replied && !interaction.deferred) {
-        await interaction
-          .reply({
-            content:
-              "An internal error occurred while generating this build graphic.",
-            flags: ["Ephemeral"],
-          })
-          .catch(() => null);
+    if (interaction.commandName === "material") {
+      try {
+        const pageData = await getMaterialPage(0);
+        await interaction.reply(pageData);
+      } catch (error) {
+        console.error("Error running /material:", error);
       }
     }
   }
@@ -220,48 +260,85 @@ client.on(Events.InteractionCreate, async (interaction) => {
       const pageData = await getPage(0);
       return await interaction.update(pageData);
     }
+    if (interaction.customId === "back_to_material") {
+      const pageData = await getMaterialPage(0);
+      return await interaction.update(pageData);
+    }
 
     const [action, currentIndex] = interaction.customId.split("_");
     let newIndex = parseInt(currentIndex);
 
     if (action === "next") newIndex++;
     if (action === "prev") newIndex--;
-    const pageData = await getPage(newIndex);
-    await interaction.update(pageData);
+    if (type === "build") {
+      const pageData = await getBuildPage(newIndex);
+      await interaction.update(pageData);
+    }
+    if (type === "material") {
+      const pageData = await getMaterialPage(newIndex);
+      await interaction.update(pageData);
+    }
   }
 
   // 3. Handle Select Menu
-  if (
-    interaction.isStringSelectMenu() &&
-    interaction.customId === "select_resonator"
-  ) {
-    const charKey = interaction.values[0];
-    const data = resonatorData[charKey];
+  if (interaction.isStringSelectMenu()) {
+    if (interaction.customId === "select_build") {
+      const charKey = interaction.values[0];
+      const data = resonatorData[charKey];
 
-    if (!data) {
-      return interaction.reply({
-        content: "Build data for this character is coming soon!",
-        flags: ["Ephemeral"],
+      if (!data) {
+        return interaction.reply({
+          content: "Loading...",
+          flags: ["Ephemeral"],
+        });
+      }
+
+      const buildEmbed = new EmbedBuilder()
+        .setTitle(`${data.name} Build Guide`)
+        .setColor(data.color)
+        .setImage(data.image);
+
+      const backButton = new ButtonBuilder()
+        .setCustomId("back_to_menu")
+        .setLabel("Return")
+        .setStyle(ButtonStyle.Secondary);
+
+      const row = new ActionRowBuilder().addComponents(backButton);
+
+      await interaction.update({
+        embeds: [buildEmbed],
+        components: [row],
+        attachments: [],
       });
     }
 
-    const buildEmbed = new EmbedBuilder()
-      .setTitle(`${data.name} Build Guide`)
-      .setColor(data.color)
-      .setImage(data.image);
+    if (interaction.customId === "select_material") {
+      const charKey = interaction.values[0];
+      const data = materialData[charKey];
+      if (!data)
+        return interaction.reply({
+          content: "Loading...",
+          flags: ["Ephemeral"],
+        });
 
-    const backButton = new ButtonBuilder()
-      .setCustomId("back_to_menu")
-      .setLabel("Return")
-      .setStyle(ButtonStyle.Secondary);
+      const matEmbed = new EmbedBuilder()
+        .setTitle(`${data.name} Material Guide`)
+        .setColor(data.color)
+        .setImage(data.image);
 
-    const row = new ActionRowBuilder().addComponents(backButton);
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId("back_to_material")
+          .setLabel("Return")
+          .setStyle(ButtonStyle.Secondary),
+      );
 
-    await interaction.update({
-      embeds: [buildEmbed],
-      components: [row],
-      attachments: [],
-    });
+      await interaction.update({
+        embeds: [matEmbed],
+        components: [row],
+        attachments: [],
+      });
+    }
   }
 });
 
