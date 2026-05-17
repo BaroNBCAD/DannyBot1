@@ -252,7 +252,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         const pageData = await getMaterialPage(0);
         await interaction.editReply(pageData);
       } catch (error) {
-        console.error("Error running /material:", error);
+        console.error("Error running /material:",error);
         await interaction
           .editReply({
             content: "An error occurred while loading these materials.",
