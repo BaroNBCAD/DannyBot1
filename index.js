@@ -159,7 +159,7 @@ async function getBuildPage(pageIndex) {
     .setImage(`attachment://grid-p${pageIndex}.png`);
 
   const selectMenu = new StringSelectMenuBuilder()
-    .setCustomId("select_resonator")
+    .setCustomId("select_build")
     .setPlaceholder("Choose a Resonator")
     .addOptions(pageItems);
 
@@ -167,12 +167,12 @@ async function getBuildPage(pageIndex) {
 
   const row2 = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId(`prev_${pageIndex}`)
+      .setCustomId(`prev_build_${pageIndex}`)
       .setLabel("Previous")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(pageIndex === 0),
     new ButtonBuilder()
-      .setCustomId(`next_${pageIndex}`)
+      .setCustomId(`next_build_${pageIndex}`)
       .setLabel("Next")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(pageIndex >= totalPages - 1),
@@ -256,7 +256,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   // 2. Handle Buttons (Next/Prev)
   if (interaction.isButton()) {
-    if (interaction.customId === "back_to_menu") {
+    if (interaction.customId === "back_to_build") {
       const pageData = await getBuildPage(0);
       return await interaction.update(pageData);
     }
@@ -265,7 +265,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return await interaction.update(pageData);
     }
 
-    const [action, currentIndex] = interaction.customId.split("_");
+    const [action, type, currentIndex] = interaction.customId.split("_");
     let newIndex = parseInt(currentIndex);
 
     if (action === "next") newIndex++;
@@ -299,7 +299,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         .setImage(data.image);
 
       const backButton = new ButtonBuilder()
-        .setCustomId("back_to_menu")
+        .setCustomId("back_to_build")
         .setLabel("Return")
         .setStyle(ButtonStyle.Secondary);
 
