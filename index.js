@@ -12,7 +12,7 @@ const {
 const { generateDynamicGrid } = require("./gridGenerator.js");
 require("dotenv").config();
 const GITHUB_BASE =
-  "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/main/";
+  "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 // HOSTINGER
@@ -81,14 +81,12 @@ const resonatorData = {
   hiyuki: {
     name: "Hiyuki",
     color: "#afeeee",
-    image:
-      "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/card/hiyuki.png",
+    image: `${GITHUB_BASE}public/card/hiyuki.png`,
   },
   denia: {
     name: "Denia",
-    color: "#fac73b",
-    image:
-      "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/card/denia.png",
+    color: "#ff67e8",
+    image: `${GITHUB_BASE}/public/card/denia.png`,
   },
 };
 
@@ -96,14 +94,12 @@ const materialData = {
   hiyuki: {
     name: "Hiyuki",
     color: "#afeeee",
-    image:
-      "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/material/hiyuki.png",
+    image: `${GITHUB_BASE}/public/material/hiyuki.png`,
   },
   denia: {
     name: "Denia",
-    color: "#fac73b",
-    image:
-      "https://raw.githubusercontent.com/BaroNBCAD/DannyBot1/refs/heads/main/public/material/denia.png",
+    color: "#ff67e8",
+    image: `${GITHUB_BASE}/public/material/denia.png`,
   },
 };
 
