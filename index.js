@@ -145,7 +145,7 @@ client.once(Events.ClientReady, async (c) => {
 });
 // --- HELPER FUNCTION ---
 // --- /build
-async function getPage(pageIndex) {
+async function getBuildPage(pageIndex) {
   const itemsPerPage = 9;
   const totalPages = Math.ceil(characters.length / itemsPerPage);
   const start = pageIndex * itemsPerPage;
@@ -257,7 +257,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   // 2. Handle Buttons (Next/Prev)
   if (interaction.isButton()) {
     if (interaction.customId === "back_to_menu") {
-      const pageData = await getPage(0);
+      const pageData = await getBuildPage(0);
       return await interaction.update(pageData);
     }
     if (interaction.customId === "back_to_material") {
