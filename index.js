@@ -170,10 +170,35 @@ async function getPage(pageIndex) {
 
 // --- MAIN LOGIC ---
 client.on(Events.InteractionCreate, async (interaction) => {
+  console.log(
+    `Interaction received: ${interaction.type} from ${interaction.user.tag}`,
+  );
   // 1. Handle Slash Command
   if (interaction.isChatInputCommand() && interaction.commandName === "build") {
-    const pageData = await getPage(0);
-    await interaction.reply(pageData);
+    console.log(
+      "/build command detected! Attempting to generate layout canvas...",
+    );
+    try {
+      const pageData = await getPage(0);
+      console.log(
+        "📦 pageData generated successfully. Sending package to Discord...",
+      );
+
+      await interaction.reply(pageData);
+      console.log("✅ Response successfully dispatched to Discord!");
+    } catch (error) {
+      console.error("❌ CRITICAL ERROR inside /build handler:", error);
+
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction
+          .reply({
+            content:
+              "An internal error occurred while generating this build graphic.",
+            flags: ["Ephemeral"],
+          })
+          .catch(() => null);
+      }
+    }
   }
 
   // 2. Handle Buttons (Next/Prev)
