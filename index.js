@@ -25,9 +25,10 @@ app.get("/", (req, res) =>
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 const characters = [
+  { label: "Lucilla", value: "lucilla" },
   { label: "Denia", value: "denia" },
   { label: "Hiyuki", value: "hiyuki" },
-  // { label: "Sigrika", value: "sigrika" },
+  { label: "Sigrika", value: "sigrika" },
   // { label: "Aemeath", value: "aemeath" },
   // { label: "Luuk-Herssen", value: "luuk_herssen" },
   // { label: "Lynae", value: "lynae" },
@@ -87,6 +88,11 @@ const resonatorData = {
     name: "Denia",
     color: "#ff67e8",
     image: `${GITHUB_BASE}/public/card/denia.png`,
+  },
+  lucilla: {
+    name: "Lucilla",
+    color: "#ff67e8",
+    image: `${GITHUB_BASE}/public/card/lucilla.png`,
   },
 };
 
@@ -252,7 +258,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         const pageData = await getMaterialPage(0);
         await interaction.editReply(pageData);
       } catch (error) {
-        console.error("Error running /material:",error);
+        console.error("Error running /material:", error);
         await interaction
           .editReply({
             content: "An error occurred while loading these materials.",
