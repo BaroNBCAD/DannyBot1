@@ -94,6 +94,16 @@ const resonatorData = {
     color: "#ff67e8",
     image: `${GITHUB_BASE}/public/card/lucilla.png`,
   },
+  chisa: {
+    name: "Chisa",
+    color: "#ac3939",
+    image: `${GITHUB_BASE}/public/card/chisa.png`,
+  },
+  phrolova: {
+    name: "Phrolova",
+    color: "#611218",
+    image: `${GITHUB_BASE}/public/card/phrolova.png`,
+  },
 };
 
 const materialData = {
@@ -106,6 +116,16 @@ const materialData = {
     name: "Denia",
     color: "#ff67e8",
     image: `${GITHUB_BASE}/public/material/denia.png`,
+  },
+  chisa: {
+    name: "Chisa",
+    color: "#ac3939",
+    image: `${GITHUB_BASE}/public/card/chisa.png`,
+  },
+  phrolova: {
+    name: "Phrolova",
+    color: "#611218",
+    image: `${GITHUB_BASE}/public/card/phrolova.png`,
   },
 };
 
