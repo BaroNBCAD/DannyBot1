@@ -28,7 +28,7 @@ const characters = [
   { label: "Lucilla", value: "lucilla" },
   { label: "Denia", value: "denia" },
   { label: "Hiyuki", value: "hiyuki" },
-  { label: "Sigrika", value: "sigrika" },
+  // { label: "Sigrika", value: "sigrika" },
   // { label: "Aemeath", value: "aemeath" },
   // { label: "Luuk-Herssen", value: "luuk_herssen" },
   // { label: "Lynae", value: "lynae" },
@@ -116,6 +116,11 @@ const materialData = {
     name: "Denia",
     color: "#ff67e8",
     image: `${GITHUB_BASE}/public/material/denia.png`,
+  },
+  lucilla: {
+    name: "Lucilla",
+    color: "#ff67e8",
+    image: `${GITHUB_BASE}/public/material/lucilla.png`,
   },
   chisa: {
     name: "Chisa",
